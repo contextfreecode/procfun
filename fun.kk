@@ -1,2 +1,9 @@
 fun main()
-  println("Hi there!")
+  greet()
+
+fun greet()
+  println(message())
+
+fun message()
+  throw("oops")
+  "Hi there!"
