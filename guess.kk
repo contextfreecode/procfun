@@ -7,7 +7,7 @@ struct game
   high: int
 
 fun ask-guess(high: int)
-  print("Pick a number between 1 and " ++ high.show ++ ": ")
+  print("Guess a number between 1 and " ++ high.show ++ ": ")
   // readline()
 
 fun pick-answer(high)
