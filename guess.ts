@@ -16,7 +16,9 @@ function pickAnswer(high: int) {
 
 function play(game: Game) {
   const guess = askGuess(game.high);
-  return guess;
+  game.guesses += 1;
+  // Useless ignore for now.
+  guess;
 }
 
 function main() {
