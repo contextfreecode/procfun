@@ -8,10 +8,12 @@ struct game
   high: int
 
 fun ask-guess(high: int): <console, exn> int
-  print("Guess a number between 1 and " ++ high.show ++ ": ")
-  val line = readline()
-  match line.parse-int
-    Nothing -> throw("bad int: " ++ line)
+  val message = "Guess a number between 1 and " ++ high.show ++ ": "
+  message.prompt.parse
+
+fun parse(text: string): exn int
+  match text.parse-int
+    Nothing -> throw("bad int: " ++ text)
     Just(n) -> n
 
 fun pick-answer(high: int): ndet int
@@ -21,6 +23,10 @@ fun play(game): <console, exn> int
   val guess = ask-guess(game.high)
   println("You guessed " ++ guess.show)
   guess
+
+fun prompt(message: string): console string
+  print(message)
+  readline()
 
 fun main(): <console, exn, ndet> ()
   val high = 100
