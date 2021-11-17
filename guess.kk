@@ -1,4 +1,5 @@
 import std/num/random
+import readline
 // import std/os/readline
 
 struct game
@@ -6,21 +7,24 @@ struct game
   guesses: int
   high: int
 
-fun ask-guess(high: int): console int
+fun ask-guess(high: int): <console, exn> int
   print("Guess a number between 1 and " ++ high.show ++ ": ")
-  // readline()
-  50
+  val line = readline()
+  match line.parse-int
+    Nothing -> throw("bad int: " ++ line)
+    Just(n) -> n
 
 fun pick-answer(high: int): ndet int
   srandom-int32-range(1.int32, high.int32).int
 
-fun play(game): console int
+fun play(game): <console, exn> int
   val guess = ask-guess(game.high)
+  println("You guessed " ++ guess.show)
   guess
 
-fun main(): <console, ndet> int
+fun main(): <console, exn, ndet> ()
   val high = 100
   val answer = pick-answer(high)
   val game = Game(answer = answer, guesses = 0, high = high)
-  val outcome = play(game)
-  outcome
+  val outcome = game.play
+  ()
