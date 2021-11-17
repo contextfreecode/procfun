@@ -1,5 +1,5 @@
 extern import
   js file "readline.js"
 
-extern readline(): console string
+extern readline(): <console, exn> string
   js "_readline"

@@ -1,6 +1,6 @@
 import std/num/random
-import readline
-// import std/os/readline
+// import readline
+import std/os/readline
 
 struct game
   answer: int
@@ -24,7 +24,7 @@ fun play(game): <console, exn> int
   println("You guessed " ++ guess.show)
   guess
 
-fun prompt(message: string): console string
+fun prompt(message: string): <console, exn> string
   print(message)
   readline()
 
