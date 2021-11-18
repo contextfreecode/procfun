@@ -12,10 +12,9 @@ fun ask-guess(high: int): <console, exn> int
   readline().parse
 
 fun ask-guess-multi(high: int): <console, div> int
-  with brk throw-exn(exc) {
+  with brk throw-exn(exc)
     println("I didn't understand")
     ask-guess-multi(high)
-  }
   ask-guess(high)
 
 fun parse(text: string): exn int
