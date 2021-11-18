@@ -11,6 +11,13 @@ fun ask-guess(high: int): <console, exn> int
   val message = "Guess a number between 1 and " ++ high.show ++ ": "
   message.prompt.parse
 
+fun ask-guess-multi(high: int): <console, div> int
+  with brk throw-exn(exc) {
+    println("I didn't understand")
+    ask-guess-multi(high)
+  }
+  ask-guess(high)
+
 fun parse(text: string): exn int
   match text.parse-int
     Nothing -> throw("bad int: " ++ text)
@@ -19,9 +26,8 @@ fun parse(text: string): exn int
 fun pick-answer(high: int): ndet int
   srandom-int32-range(1.int32, high.int32).int
 
-fun play(game): <console, div, exn> game
-  // with brk throw-exn(exc) {game}
-  val guess = ask-guess(game.high)
+fun play(game): <console, div> game
+  val guess = ask-guess-multi(game.high)
   game.report(guess)
   val next = game.update(guess)
   if next.done then next else next.play
@@ -41,7 +47,7 @@ fun update(game, guess: int): game
   val done = guess == game.answer
   game(done = done, guesses = game.guesses + 1)
 
-fun main(): <console, div, exn, ndet> ()
+fun main(): <console, div, ndet> ()
   val high = 100
   val game = Game(answer = pick-answer(high), high = high)
   val outcome = game.play
