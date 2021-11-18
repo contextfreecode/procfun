@@ -26,10 +26,13 @@ fun pick-answer(high: int): ndet int
   srandom-int32-range(1.int32, high.int32).int
 
 fun play(game: game): <console, div> game
-  val guess = ask-guess-multi(game.high)
-  game.report(guess)
-  val next = game.update(guess)
-  if next.done then next else next.play
+  // game.done := True
+  var next := game
+  while { !next.done }
+    val guess = ask-guess-multi(game.high)
+    game.report(guess)
+    next := game.update(guess)
+  next
 
 fun report(game: game, guess: int): console ()
   val description =
