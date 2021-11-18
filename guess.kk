@@ -39,13 +39,13 @@ fun report(game: game, guess: int): console ()
     else "the answer!"
   println(guess.show ++ " is " ++ description)
 
-fun update(game: game, guess: int): game  // or total game
+fun update(game: game, guess: int): game  // or `total game``
   var done := False
   if guess == game.answer
     done := True
   game(done = done, guesses = game.guesses + 1)
 
-fun main(): <console, div, ndet> ()
+fun main(): <console, div, ndet> ()  // or `io ()` for overkill
   val high = 100
   val game = Game(answer = pick-answer(high), high = high)
   val outcome = game.play
