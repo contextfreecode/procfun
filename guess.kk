@@ -9,7 +9,7 @@ struct game
 
 fun ask-guess(high: int): <console, exn> int
   print("Guess a number between 1 and " ++ high.show ++ ": ")
-  readline().parse
+  readline().parse-int-checked
 
 fun ask-guess-multi(high: int): <console, div> int
   with brk throw-exn(exc)
@@ -17,7 +17,7 @@ fun ask-guess-multi(high: int): <console, div> int
     ask-guess-multi(high)
   ask-guess(high)
 
-fun parse(text: string): exn int
+fun parse-int-checked(text: string): exn int
   match text.parse-int
     Nothing -> throw("bad int: " ++ text)
     Just(n) -> n
@@ -27,12 +27,10 @@ fun pick-answer(high: int): ndet int
 
 fun play(game: game): <console, div> game
   // game.done := True
-  var next := game
-  while { !next.done }
-    val guess = ask-guess-multi(game.high)
-    game.report(guess)
-    next := game.update(guess)
-  next
+  val guess = ask-guess-multi(game.high)
+  game.report(guess)
+  val next = game.update(guess)
+  if next.done then next else next.play
 
 fun report(game: game, guess: int): console ()
   val description =
@@ -49,6 +47,6 @@ fun update(game: game, guess: int): game  // or `total game``
 
 fun main(): <console, div, ndet> ()  // or `io ()` for overkill
   val high = 100
-  val game = Game(answer = pick-answer(high), high = high)
-  val outcome = game.play
-  print("Finished in " ++ outcome.guesses.show ++ " guesses")
+  var game := Game(answer = pick-answer(high), high = high)
+  game := game.play
+  print("Finished in " ++ game.guesses.show ++ " guesses")
