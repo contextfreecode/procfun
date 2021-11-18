@@ -8,8 +8,8 @@ struct game
   high: int
 
 fun ask-guess(high: int): <console, exn> int
-  val message = "Guess a number between 1 and " ++ high.show ++ ": "
-  message.prompt.parse
+  print("Guess a number between 1 and " ++ high.show ++ ": ")
+  readline().parse
 
 fun ask-guess-multi(high: int): <console, div> int
   with brk throw-exn(exc) {
@@ -31,10 +31,6 @@ fun play(game: game): <console, div> game
   game.report(guess)
   val next = game.update(guess)
   if next.done then next else next.play
-
-fun prompt(message: string): <console, exn> string
-  message.print
-  readline()
 
 fun report(game: game, guess: int): console ()
   val description =
