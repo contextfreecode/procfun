@@ -26,7 +26,7 @@ fun parse(text: string): exn int
 fun pick-answer(high: int): ndet int
   srandom-int32-range(1.int32, high.int32).int
 
-fun play(game): <console, div> game
+fun play(game: game): <console, div> game
   val guess = ask-guess-multi(game.high)
   game.report(guess)
   val next = game.update(guess)
@@ -36,14 +36,14 @@ fun prompt(message: string): <console, exn> string
   message.print
   readline()
 
-fun report(game, guess: int): console ()
+fun report(game: game, guess: int): console ()
   val description =
     if guess < game.answer then "too low"
     elif guess > game.answer then "too high"
     else "the answer!"
   println(guess.show ++ " is " ++ description)
 
-fun update(game, guess: int): game
+fun update(game: game, guess: int): game
   val done = guess == game.answer
   game(done = done, guesses = game.guesses + 1)
 
