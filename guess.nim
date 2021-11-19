@@ -1,6 +1,5 @@
 {.experimental: "strictEffects".}
 import std/random
-type Rand = object
 
 type
   Game = object
@@ -33,6 +32,9 @@ var errCount = 0
 #   return value;
 # }
 
+proc pickAnswer(r: var Rand, high: int): int =
+  rand(r, high - 1) + 1
+
 proc pickAnswer(high: int): int {.tags: [Rand].} =
   rand(high - 1) + 1
 
@@ -60,10 +62,14 @@ proc pickAnswer(high: int): int {.tags: [Rand].} =
 #   game.guesses += 1;
 # }
 
-proc main() {.tags: [Rand].} =
+# proc main() {.tags: [Rand].} =
+proc main() {.tags: [].} =
+  var
+    r = initRand()
   let
     high = 100
-    answer = pickAnswer(high)
+    # answer = pickAnswer(high)
+    answer = pickAnswer(r, high)
     # game = { answer, done: false, guesses: 0, high }
   # play(game);
   # console.log(`Finished in ${game.guesses} guesses`);
