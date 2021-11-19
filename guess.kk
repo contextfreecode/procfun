@@ -1,6 +1,9 @@
 import std/num/random
 import std/os/readline
 
+// var err-count := 0
+// val err-count = 0
+
 struct game
   answer: int
   done: bool = False

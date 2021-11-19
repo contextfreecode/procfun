@@ -7,6 +7,8 @@ type Game = {
   high: int;
 };
 
+let errCount = 0;
+
 function askGuess(high: int): int {
   const text = prompt(`Guess a number between 1 and ${high}:`);
   return parseIntChecked(text);
@@ -18,13 +20,14 @@ function askGuessMulti(high: int): int {
       return askGuess(high);
     } catch {
       console.log("I didn't understand");
+      errCount += 1;
     }
   }
 }
 
 function parseIntChecked(text: string | null | undefined): int {
   const value = parseInt(text as string);
-  if (value != Number(text)) throw new Error();
+  if (value != Number(text)) throw new Error(`bad int: ${text}`);
   return value;
 }
 
