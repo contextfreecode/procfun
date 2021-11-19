@@ -32,8 +32,8 @@ var errCount = 0
 #   return value;
 # }
 
-proc pickAnswer(r: var Rand, high: int): int =
-  rand(r, high - 1) + 1
+func pickAnswer(r: var Rand, high: int): int =
+  r.rand(high - 1) + 1
 
 proc pickAnswer(high: int): int {.tags: [Rand].} =
   rand(high - 1) + 1
