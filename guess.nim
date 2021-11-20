@@ -10,6 +10,7 @@ type
     guesses: int
     high: int
 
+# Treat as debug info only, for logging purposes.
 var errCount = 0
 
 func askGuess(high: int): int {.tags: [ReadIOEffect, WriteIOEffect].} =
@@ -28,12 +29,6 @@ func askGuessMulti(high: int): int {.
         echo "I didn't understand"
         errCount += 1
 
-# function parseIntChecked(text: string | null | undefined): int {
-#   const value = parseInt(text as string);
-#   if (value != Number(text)) throw new Error(`bad int: ${text}`);
-#   return value;
-# }
-
 proc pickAnswer(high: int): int {.tags: [Rand].} =
   rand(high - 1) + 1
 
@@ -41,21 +36,18 @@ proc pickAnswer(high: int): int {.tags: [Rand].} =
 func pickAnswer(r: var Rand, high: int): int =
   r.rand(high - 1) + 1
 
+proc report(game: Game, guess: int) {.tags: [WriteIOEffect]} =
+  let description =
+    if guess < game.answer: "too low"
+    elif guess > game.answer: "too high"
+    else: "the answer!"
+  echo &"{guess} is {description}"
+
 proc play(game: Game) {.tags: [ReadIOEffect, WriteIOEffect].} =
   while not game.done:
     let guess = askGuessMulti(game.high)
-    # report(game, guess);
+    game.report(guess)
     # update(game, guess);
-    break
-
-# function report(game: Game, guess: int) {
-#   // deno-fmt-ignore
-#   const description =
-#     guess < game.answer ? "too low" :
-#     guess > game.answer ? "too high" :
-#     "the answer!";
-#   console.log(`${guess} is ${description}`);
-# }
 
 # function update(game: Game, guess: int) {
 #   if (guess == game.answer) {
@@ -75,7 +67,7 @@ proc main() {.tags: [ReadIOEffect, WriteIOEffect].} =
     game = Game(answer: answer, done: false, guesses: 0, high: high)
   play(game)
   # console.log(`Finished in ${game.guesses} guesses`);
-  # echo "Hi!"
+  stderr.writeLine &"Total input errors: {errCount}"
 
 main()
 
