@@ -1,20 +1,11 @@
-type int = number;
-
-type Game = {
-  answer: int;
-  done: boolean;
-  guesses: int;
-  high: int;
-};
-
 let errCount = 0;
 
-function askGuess(high: int): int {
+function askGuess(high) {
   const text = prompt(`Guess a number between 1 and ${high}:`);
   return parseIntChecked(text);
 }
 
-function askGuessMulti(high: int): int {
+function askGuessMulti(high) {
   while (true) {
     try {
       return askGuess(high);
@@ -25,17 +16,17 @@ function askGuessMulti(high: int): int {
   }
 }
 
-function parseIntChecked(text: string | null | undefined): int {
-  const value = parseInt(text as string);
+function parseIntChecked(text) {
+  const value = parseInt(text);
   if (value != Number(text)) throw new Error(`bad int: ${text}`);
   return value;
 }
 
-function pickAnswer(high: int): int {
+function pickAnswer(high) {
   return crypto.getRandomValues(new Uint32Array(1))[0] % high;
 }
 
-function play(game: Game) {
+function play(game) {
   while (!game.done) {
     const guess = askGuessMulti(game.high);
     report(game, guess);
@@ -43,7 +34,7 @@ function play(game: Game) {
   }
 }
 
-function report(game: Game, guess: int) {
+function report(game, guess) {
   // deno-fmt-ignore
   const description =
     guess < game.answer ? "too low" :
@@ -52,7 +43,7 @@ function report(game: Game, guess: int) {
   console.log(`${guess} is ${description}`);
 }
 
-function update(game: Game, guess: int) {
+function update(game, guess) {
   if (guess == game.answer) {
     game.done = true;
   }
