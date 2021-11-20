@@ -1,5 +1,7 @@
 {.experimental: "strictEffects".}
 import std/random
+import std/strformat
+import std/strutils
 
 type
   Game = object
@@ -10,21 +12,21 @@ type
 
 var errCount = 0
 
-# function askGuess(high: int): int {
-#   const text = prompt(`Guess a number between 1 and ${high}:`);
-#   return parseIntChecked(text);
-# }
+func askGuess(high: int): int {.tags: [ReadIOEffect, WriteIOEffect].} =
+  {.cast(noSideEffect).}:
+    stdout.write &"Guess a number between 1 and {high}: "
+    stdin.readLine.parseInt
 
-# function askGuessMulti(high: int): int {
-#   while (true) {
-#     try {
-#       return askGuess(high);
-#     } catch {
-#       console.log("I didn't understand");
-#       errCount += 1;
-#     }
-#   }
-# }
+func askGuessMulti(high: int): int {.
+    raises: [], tags: [ReadIOEffect, WriteIOEffect]
+  .} =
+  while true:
+    try:
+      return askGuess(high)
+    except IOError, ValueError:
+      {.cast(noSideEffect).}:
+        echo "I didn't understand"
+        errCount += 1
 
 # function parseIntChecked(text: string | null | undefined): int {
 #   const value = parseInt(text as string);
@@ -32,19 +34,19 @@ var errCount = 0
 #   return value;
 # }
 
-func pickAnswer(r: var Rand, high: int): int =
-  r.rand(high - 1) + 1
-
 proc pickAnswer(high: int): int {.tags: [Rand].} =
   rand(high - 1) + 1
 
-# function play(game: Game) {
-#   while (!game.done) {
-#     const guess = askGuessMulti(game.high);
-#     report(game, guess);
-#     update(game, guess);
-#   }
-# }
+# proc pickAnswer(r: var Rand, high: int): int {.noSideEffect.} =
+func pickAnswer(r: var Rand, high: int): int =
+  r.rand(high - 1) + 1
+
+proc play(game: Game) {.tags: [ReadIOEffect, WriteIOEffect].} =
+  while not game.done:
+    let guess = askGuessMulti(game.high)
+    # report(game, guess);
+    # update(game, guess);
+    break
 
 # function report(game: Game, guess: int) {
 #   // deno-fmt-ignore
@@ -63,19 +65,23 @@ proc pickAnswer(high: int): int {.tags: [Rand].} =
 # }
 
 # proc main() {.tags: [Rand].} =
-proc main() {.tags: [].} =
+proc main() {.tags: [ReadIOEffect, WriteIOEffect].} =
   var
     r = initRand()
   let
     high = 100
     # answer = pickAnswer(high)
     answer = pickAnswer(r, high)
-    # game = { answer, done: false, guesses: 0, high }
-  # play(game);
+    game = Game(answer: answer, done: false, guesses: 0, high: high)
+  play(game)
   # console.log(`Finished in ${game.guesses} guesses`);
-  echo "Hi!"
+  # echo "Hi!"
 
 main()
+
+# func sneaky() =
+#   var r = initRand()
+#   discard pickAnswer(r, 100)
 
 
 # See also: https://play.nim-lang.org/#ix=3FrC
