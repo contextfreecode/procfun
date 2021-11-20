@@ -43,30 +43,27 @@ proc report(game: Game, guess: int) {.tags: [WriteIOEffect]} =
     else: "the answer!"
   echo &"{guess} is {description}"
 
-proc play(game: Game) {.tags: [ReadIOEffect, WriteIOEffect].} =
+func update(game: var Game, guess: int) =
+  if guess == game.answer:
+    game.done = true;
+  game.guesses += 1
+
+proc play(game: var Game) {.tags: [ReadIOEffect, WriteIOEffect].} =
   while not game.done:
     let guess = askGuessMulti(game.high)
     game.report(guess)
-    # update(game, guess);
-
-# function update(game: Game, guess: int) {
-#   if (guess == game.answer) {
-#     game.done = true;
-#   }
-#   game.guesses += 1;
-# }
+    game.update(guess)
 
 # proc main() {.tags: [Rand].} =
 proc main() {.tags: [ReadIOEffect, WriteIOEffect].} =
-  var
-    r = initRand()
+  var r = initRand()
   let
     high = 100
     # answer = pickAnswer(high)
-    answer = pickAnswer(r, high)
-    game = Game(answer: answer, done: false, guesses: 0, high: high)
-  play(game)
-  # console.log(`Finished in ${game.guesses} guesses`);
+    answer = r.pickAnswer(high)
+  var game = Game(answer: answer, done: false, guesses: 0, high: high)
+  game.play
+  echo &"Finished in {game.guesses} guesses"
   stderr.writeLine &"Total input errors: {errCount}"
 
 main()
@@ -74,20 +71,3 @@ main()
 # func sneaky() =
 #   var r = initRand()
 #   discard pickAnswer(r, 100)
-
-
-# See also: https://play.nim-lang.org/#ix=3FrC
-# import random
-# template funcRand(x: untyped): untyped =
-#   let max = x
-#   {.cast(noSideEffect).}:
-#     rand(max)
-# func pickAnswer(high: int): int =
-#   funcRand(high - 1) + 1
-# echo pickAnswer(40)
-# https://play.nim-lang.org/#ix=3Frz
-# func pickAnswer(high: int): int =
-#   result = block:
-#     {.cast(noSideEffect).}:
-#       rand(high - 1)
-#   result += 1
