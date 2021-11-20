@@ -4,6 +4,9 @@ import std/os/readline
 // var err-count := 0
 // val err-count = 0
 
+effect debug
+  fun inc-err(): ()
+
 struct game
   answer: int
   done: bool = False
@@ -14,9 +17,10 @@ fun ask-guess(high: int): <console, exn> int
   print("Guess a number between 1 and " ++ high.show ++ ": ")
   readline().parse-int-checked
 
-fun ask-guess-multi(high: int): <console, div> int
+fun ask-guess-multi(high: int): <console, debug, div> int
   with brk throw-exn(exc)
     println("I didn't understand")
+    inc-err()
     ask-guess-multi(high)
   ask-guess(high)
 
@@ -28,7 +32,7 @@ fun parse-int-checked(text: string): exn int
 fun pick-answer(high: int): ndet int
   srandom-int32-range(1.int32, high.int32).int
 
-fun play(game: game): <console, div> game
+fun play(game: game): <console, debug, div> game
   // game.done := True
   val guess = ask-guess-multi(game.high)
   game.report(guess)
@@ -49,7 +53,14 @@ fun update(game: game, guess: int): game  // or `total game``
   game(done = done, guesses = game.guesses + 1)
 
 fun main(): <console, div, ndet> ()  // or `io ()` for overkill
+  // Track info for debug
+  var err-count := 0
+  with fun inc-err()
+    err-count := err-count + 1
+  // Main code
   val high = 100
   var game := Game(answer = pick-answer(high), high = high)
   game := game.play
-  print("Finished in " ++ game.guesses.show ++ " guesses")
+  println("Finished in " ++ game.guesses.show ++ " guesses")
+  // Report debug info (ideally to stderr or log)
+  println("Total input errors: " ++ err-count.show)
