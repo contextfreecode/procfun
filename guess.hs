@@ -23,7 +23,8 @@ gameDefault = Game {
 askGuess :: Integer -> IO Integer
 askGuess high = do
     putStr $ "Guess a number between 1 and " ++ show high ++ ": "
-    return high
+    text <- getLine
+    return $ read text
 
 pickAnswer :: Integer -> IO Integer
 pickAnswer high =
@@ -37,6 +38,7 @@ pickAnswer3 high = uniformRM (1, high)
 
 play :: Game -> IO Game
 play game = do
+    guess <- askGuess $ high game
     return game
 
 timeSeed :: IO Integer
