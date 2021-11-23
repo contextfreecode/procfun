@@ -13,15 +13,15 @@ pickAnswer2 high = uniformR (1, high)
 pickAnswer3 :: StatefulGen gen m => Int -> gen -> m Int
 pickAnswer3 high = uniformRM (1, high)
 
-timeSeed :: IO Integer
+timeSeed :: IO Int
 timeSeed = do
     time <- getTime Monotonic
-    return $ toNanoSecs time
+    return $ fromIntegral $ toNanoSecs time
 
 main :: IO ()
 main = do
     seed <- timeSeed
-    let g3 = mkStdGen $ fromIntegral seed
+    let g3 = mkStdGen seed
     let (v5, g4) = pickAnswer2 100 g3
     answer <- pickAnswer high
     v2 <- getStdRandom $ pickAnswer2 100
