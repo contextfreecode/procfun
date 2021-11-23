@@ -4,10 +4,10 @@ import System.Random
 import System.Random.Stateful
 
 data Game = Game {
-    answer :: Int,
+    answer :: Integer,
     done :: Bool,
-    guesses :: Int,
-    high :: Int
+    guesses :: Integer,
+    high :: Integer
 }
 
 gameAnswer = answer
@@ -20,24 +20,29 @@ gameDefault = Game {
     high = undefined
 }
 
-pickAnswer :: Int -> IO Int
+askGuess :: Integer -> IO Integer
+askGuess high = do
+    putStr $ "Guess a number between 1 and " ++ show high ++ ": "
+    return high
+
+pickAnswer :: Integer -> IO Integer
 pickAnswer high =
     randomRIO (1, high)
 
-pickAnswer2 :: RandomGen gen => Int -> gen -> (Int, gen)
+pickAnswer2 :: RandomGen gen => Integer -> gen -> (Integer, gen)
 pickAnswer2 high = uniformR (1, high)
 
-pickAnswer3 :: StatefulGen gen m => Int -> gen -> m Int
+pickAnswer3 :: StatefulGen gen m => Integer -> gen -> m Integer
 pickAnswer3 high = uniformRM (1, high)
 
 play :: Game -> IO Game
 play game = do
     return game
 
-timeSeed :: IO Int
+timeSeed :: IO Integer
 timeSeed = do
     time <- getTime Monotonic
-    return $ fromIntegral $ toNanoSecs time
+    return $ toNanoSecs time
 
 main :: IO ()
 main = do
@@ -62,5 +67,5 @@ main = do
         gen = mkStdGen 5
         (v3, g2) = pickAnswer2 100 gen
         -- v4 = do
-        --     (return $ pickAnswer2 100 g2) :: StatefulGen Int
-        val = uniformR (1, 100 :: Int) (mkStdGen 5)
+        --     (return $ pickAnswer2 100 g2) :: StatefulGen Integer
+        val = uniformR (1, 100 :: Integer) (mkStdGen 5)
