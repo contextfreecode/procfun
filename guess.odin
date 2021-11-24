@@ -1,6 +1,8 @@
 package main
 
-import rnd "core:math/rand"
+import "core:fmt"
+import "core:time"
+import "core:math/rand"
 
 Game :: struct {
 	answer: int,
@@ -9,12 +11,14 @@ Game :: struct {
 	high: int,
 }
 
-pickAnswer :: proc(high: int, rand: ^rnd.Rand) -> int {
-	return rnd.int_max(high, rand) + 1
+pickAnswer :: proc(high: int, r: ^rand.Rand) -> int {
+	return rand.int_max(high, r) + 1
 }
 
 main :: proc() {
 	high :: 100
-	answer := pickAnswer(high, nil)
-	game := Game { answer = answer, done = false, guesses = 0, high = high }
+	r := rand.create(transmute(u64)time.now())
+	answer := pickAnswer(high, &r)
+	game := Game {answer = answer, done = false, guesses = 0, high = high}
+	fmt.println(answer)
 }
