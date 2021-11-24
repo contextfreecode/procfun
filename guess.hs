@@ -1,8 +1,17 @@
 import Control.Exception
 import Control.Monad.IO.Class
+import Control.Monad.State
 import System.Clock
 import System.Random
 import System.Random.Stateful
+
+newtype Debug = Debug {
+    errCount :: Integer
+}
+
+debugDefault = Debug {
+    errCount = 0
+}
 
 data Game = Game {
     answer :: Integer,
@@ -27,10 +36,13 @@ askGuess high = do
     text <- getLine
     evaluate $ read text
 
-askGuessMulti :: Integer -> IO Integer
-askGuessMulti high = catch (askGuess high) $ \(ErrorCall ex) -> do
-    putStrLn "I didn't understand"
-    askGuessMulti high
+askGuessMulti :: Integer -> StateT Debug IO Integer
+askGuessMulti high =
+    catch (liftIO $ askGuess high) $ \(ErrorCall ex) -> do
+        liftIO $ putStrLn "I didn't understand"
+        debug <- get
+        put $ debug { errCount = errCount debug + 1 }
+        askGuessMulti high
 
 pickAnswer :: Integer -> IO Integer
 pickAnswer high =
@@ -42,7 +54,7 @@ pickAnswer2 high = uniformR (1, high)
 pickAnswer3 :: StatefulGen gen m => Integer -> gen -> m Integer
 pickAnswer3 high = uniformRM (1, high)
 
-play :: Game -> IO Game
+play :: Game -> StateT Debug IO Game
 play game = do
     guess <- askGuessMulti $ high game
     return game
@@ -56,7 +68,7 @@ main :: IO ()
 main = do
     answer <- pickAnswer high
     let game = gameDefault { answer = answer, high = high }
-    result <- play game
+    (result, debug) <- runStateT (play game) debugDefault
     print answer
     -- seed <- timeSeed
     -- let g3 = mkStdGen seed
