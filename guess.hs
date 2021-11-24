@@ -1,5 +1,4 @@
-import Control.DeepSeq (force)
-import Control.Exception (try)
+import Control.Exception
 import Control.Monad.IO.Class
 import System.Clock
 import System.Random
@@ -26,9 +25,14 @@ askGuess :: Integer -> IO Integer
 askGuess high = do
     putStr $ "Guess a number between 1 and " ++ show high ++ ": "
     text <- getLine
-    let value = read text :: Integer
-    hmm <- evaluate $ force value
-    return $ read text
+    evaluate $ read text
+
+askGuessMulti :: Integer -> IO Integer
+askGuessMulti high = catch (askGuess high) handler where
+    handler (SomeException ex) = do
+        -- Data.Typeable allows `show (typeOf ex)`
+        putStrLn "I didn't understand"
+        askGuessMulti high
 
 pickAnswer :: Integer -> IO Integer
 pickAnswer high =
@@ -42,7 +46,7 @@ pickAnswer3 high = uniformRM (1, high)
 
 play :: Game -> IO Game
 play game = do
-    guess <- askGuess $ high game
+    guess <- askGuessMulti $ high game
     return game
 
 timeSeed :: IO Integer
