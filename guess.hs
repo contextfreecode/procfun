@@ -28,11 +28,9 @@ askGuess high = do
     evaluate $ read text
 
 askGuessMulti :: Integer -> IO Integer
-askGuessMulti high = catch (askGuess high) handler where
-    handler (SomeException ex) = do
-        -- Data.Typeable allows `show (typeOf ex)`
-        putStrLn "I didn't understand"
-        askGuessMulti high
+askGuessMulti high = catch (askGuess high) $ \(ErrorCall ex) -> do
+    putStrLn "I didn't understand"
+    askGuessMulti high
 
 pickAnswer :: Integer -> IO Integer
 pickAnswer high =
