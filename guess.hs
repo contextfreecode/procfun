@@ -38,11 +38,21 @@ askGuess high = do
 
 askGuessMulti :: Integer -> StateT Debug IO Integer
 askGuessMulti high =
-    catch (liftIO $ askGuess high) $ \(ErrorCall ex) -> do
+    liftIO (askGuess high) `catchStateT` \(ErrorCall err) -> do
         liftIO $ putStrLn "I didn't understand"
         debug <- get
         put $ debug { errCount = errCount debug + 1 }
         askGuessMulti high
+
+-- From https://www.schoolofhaskell.com/user/snoyberg/general-haskell/exceptions/exceptions-and-monad-transformers
+catchStateT ::
+    Exception e => StateT s IO a -> (e -> StateT s IO a) -> StateT s IO a
+catchStateT action handler = do
+    state <- get
+    (result, state') <- liftIO $ runStateT action state `catch` \err ->
+        runStateT (handler err) state
+    put state'
+    return result
 
 pickAnswer :: Integer -> IO Integer
 pickAnswer high =
@@ -70,6 +80,7 @@ main = do
     let game = gameDefault { answer = answer, high = high }
     (result, debug) <- runStateT (play game) debugDefault
     print answer
+    print $ errCount debug
     -- seed <- timeSeed
     -- let g3 = mkStdGen seed
     -- let (v5, g4) = pickAnswer2 100 g3
