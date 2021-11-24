@@ -1,9 +1,6 @@
 import Control.Exception
-import Control.Monad.IO.Class
 import Control.Monad.State
-import System.Clock
 import System.Random
-import System.Random.Stateful
 
 newtype Debug = Debug {
     errCount :: Integer
@@ -19,9 +16,6 @@ data Game = Game {
     guesses :: Integer,
     high :: Integer
 }
-
-gameAnswer = answer
-gameHigh = high
 
 gameDefault = Game {
     answer = undefined,
@@ -41,6 +35,7 @@ askGuessMulti high =
     -- Use explicit ErrorCall to avoid catching Ctrl+C
     lift (askGuess high) `catchStateT` \(ErrorCall err) -> do
         lift $ putStrLn "I didn't understand"
+        -- Alternatively use a global IORef for errCount.
         debug <- get
         put $ debug { errCount = errCount debug + 1 }
         askGuessMulti high
@@ -62,42 +57,34 @@ pickAnswer high =
 pickAnswer2 :: RandomGen gen => Integer -> gen -> (Integer, gen)
 pickAnswer2 high = uniformR (1, high)
 
-pickAnswer3 :: StatefulGen gen m => Integer -> gen -> m Integer
-pickAnswer3 high = uniformRM (1, high)
-
 play :: Game -> StateT Debug IO Game
 play game = do
     guess <- askGuessMulti $ high game
-    return game
+    lift $ game `report` guess
+    let next = game `update` guess
+    if done next then return next else play next
 
-timeSeed :: IO Integer
-timeSeed = do
-    time <- getTime Monotonic
-    return $ toNanoSecs time
+report :: Game -> Integer -> IO ()
+report game guess =
+    putStrLn $ show guess ++ " is " ++ description
+    where
+        description = case compare guess (answer game) of
+            LT -> "too low"
+            GT -> "too high"
+            EQ -> "the answer!"
+
+update :: Game -> Integer -> Game
+update game guess =
+    game { done = guess == answer game, guesses = guesses game + 1 }
 
 main :: IO ()
 main = do
     answer <- pickAnswer high
+    -- let (answer, gen2) = pickAnswer2 high $ mkStdGen 1337
+    -- answer <- getStdRandom $ pickAnswer2 high
     let game = gameDefault { answer = answer, high = high }
     (result, debug) <- runStateT (play game) debugDefault
-    print answer
-    print $ errCount debug
-    -- seed <- timeSeed
-    -- let g3 = mkStdGen seed
-    -- let (v5, g4) = pickAnswer2 100 g3
-    -- -- See https://hackage.haskell.org/package/random-1.2.1/docs/src/System.Random.html#getStdRandom
-    -- v2 <- getStdRandom $ pickAnswer2 100
-    -- print answer
-    -- print val
-    -- print v2
-    -- print v3
-    -- -- v4 <- pickAnswer3 100 (newIOGenM gen)
-    -- -- print v4
-    -- print v5
+    putStrLn $ "Finished in " ++ show (guesses result) ++ " guesses"
+    putStrLn $ "Total input errors: " ++ show (errCount debug)
     where
         high = 100
-        gen = mkStdGen 5
-        (v3, g2) = pickAnswer2 100 gen
-        -- v4 = do
-        --     (return $ pickAnswer2 100 g2) :: StatefulGen Integer
-        val = uniformR (1, 100 :: Integer) (mkStdGen 5)
