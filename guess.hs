@@ -38,8 +38,9 @@ askGuess high = do
 
 askGuessMulti :: Integer -> StateT Debug IO Integer
 askGuessMulti high =
-    liftIO (askGuess high) `catchStateT` \(ErrorCall err) -> do
-        liftIO $ putStrLn "I didn't understand"
+    -- Use explicit ErrorCall to avoid catching Ctrl+C
+    lift (askGuess high) `catchStateT` \(ErrorCall err) -> do
+        lift $ putStrLn "I didn't understand"
         debug <- get
         put $ debug { errCount = errCount debug + 1 }
         askGuessMulti high
