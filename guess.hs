@@ -1,3 +1,5 @@
+import Control.DeepSeq (force)
+import Control.Exception (try)
 import Control.Monad.IO.Class
 import System.Clock
 import System.Random
@@ -24,6 +26,8 @@ askGuess :: Integer -> IO Integer
 askGuess high = do
     putStr $ "Guess a number between 1 and " ++ show high ++ ": "
     text <- getLine
+    let value = read text :: Integer
+    hmm <- evaluate $ force value
     return $ read text
 
 pickAnswer :: Integer -> IO Integer
