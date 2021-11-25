@@ -18,12 +18,9 @@ err_count := 0
 
 ask_guess :: proc(high: int) -> (result: int, ok: bool) {
 	fmt.printf("Guess a number between 1 and %d: ", high)
-	if buffer, err := mem.make([]u8, 1 << 13); err == .None {
-		defer mem.delete(buffer)
-		if n, err := os.read(os.stdin, buffer[:]); err == os.ERROR_NONE {
-			text := cast(string)buffer[:n - 1]
-			return strconv.parse_int(s = text, base = 10)
-		}
+	if text, ok := read_line(); ok {
+		defer mem.delete(text)
+		return strconv.parse_int(s = text, base = 10)
 	}
 	return
 }
@@ -50,6 +47,16 @@ play :: proc(game: Game) -> (next: Game) {
 		guess := ask_guess_multi(next.high)
 		report(next, guess)
 		next = update(next, guess)
+	}
+	return
+}
+
+read_line :: proc() -> (result: string, ok: bool) {
+	if buffer, err := mem.make([]u8, 1 << 13); err == .None {
+		if n, err := os.read(os.stdin, buffer[:]); err == os.ERROR_NONE {
+			return cast(string)buffer[:n - 1], true
+		}
+		mem.delete(buffer)
 	}
 	return
 }
