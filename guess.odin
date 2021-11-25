@@ -1,6 +1,8 @@
 package main
 
+import "core:bufio"
 import "core:fmt"
+import "core:io"
 import "core:mem"
 import "core:os"
 import "core:strconv"
@@ -52,11 +54,15 @@ play :: proc(game: Game) -> (next: Game) {
 }
 
 read_line :: proc() -> (result: string, ok: bool) {
-	if buffer, err := mem.make([]u8, 1 << 13); err == .None {
-		if n, err := os.read(os.stdin, buffer[:]); err == os.ERROR_NONE {
-			return cast(string)buffer[:n - 1], true
-		}
-		mem.delete(buffer)
+	// See also:
+	// - https://github.com/odin-lang/Odin/issues/1214
+	// - https://p.teknik.io/Raw/IT996
+	s := os.stream_from_handle(os.stdin)
+	r: bufio.Reader
+	bufio.reader_init(&r, io.Reader{s})
+	defer bufio.reader_destroy(&r)
+	if line, err := bufio.reader_read_string(&r, '\n'); err == .None {
+		return line[:len(line) - 1], true
 	}
 	return
 }
