@@ -47,9 +47,9 @@ play :: proc(game: Game) -> (next: Game) {
 	// fmt.println(&game)
 	next = game
 	for !next.done {
-		guess := ask_guess_multi(game.high)
-		report(game, guess)
-		next = update(game, guess)
+		guess := ask_guess_multi(next.high)
+		report(next, guess)
+		next = update(next, guess)
 	}
 	return
 }
