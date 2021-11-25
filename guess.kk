@@ -29,7 +29,10 @@ fun parse-int-checked(text: string): exn int
     Nothing -> throw("bad int: " ++ text)
     Just(n) -> n
 
-fun pick-answer(high: int): ndet int
+fun pick-answer(high: int): random int
+  (random-double() * high.double).int + 1
+
+fun pick-answer-strong(high: int): ndet int
   srandom-int32-range(1.int32, high.int32).int
 
 fun play(game: game): <console, debug, div> game
@@ -48,15 +51,16 @@ fun report(game: game, guess: int): console ()
 
 fun update(game: game, guess: int): game  // or `total game``
   var done := False
-  if guess == game.answer
+  if guess == game.answer then
     done := True
   game(done = done, guesses = game.guesses + 1)
 
-fun main(): <console, div, ndet> ()  // or `io ()` for overkill
+fun main(): <console, div, random> ()  // or `io ()` for overkill
   // Track info for debug
   var err-count := 0
   with fun inc-err()
     err-count := err-count + 1
+  // with fun random-int32() -> 0.int32
   // Main code
   val high = 100
   var game := Game(answer = pick-answer(high), high = high)

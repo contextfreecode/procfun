@@ -23,7 +23,7 @@ function parseIntChecked(text) {
 }
 
 function pickAnswer(high) {
-  return crypto.getRandomValues(new Uint32Array(1))[0] % high;
+  return Math.floor(Math.random() * high) + 1;
 }
 
 function play(game) {

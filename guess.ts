@@ -32,7 +32,7 @@ function parseIntChecked(text: string | null | undefined): int {
 }
 
 function pickAnswer(high: int): int {
-  return crypto.getRandomValues(new Uint32Array(1))[0] % high;
+  return Math.floor(Math.random() * high) + 1;
 }
 
 function play(game: Game) {
