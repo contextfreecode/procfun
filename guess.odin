@@ -17,7 +17,7 @@ Game :: struct {
 err_count := 0
 
 ask_guess :: proc(high: int) -> (result: int, ok: bool) {
-	fmt.print("Guess a number between 1 and n: ")
+	fmt.printf("Guess a number between 1 and %d: ", high)
 	if buffer, err := mem.make([]u8, 1 << 13); err == .None {
 		defer mem.delete(buffer)
 		if n, err := os.read(os.stdin, buffer[:]); err == os.ERROR_NONE {
@@ -42,14 +42,32 @@ pick_answer :: proc(high: int, r: ^rand.Rand) -> int {
 	return rand.int_max(high, r) + 1
 }
 
-play :: proc(game: Game) {
+play :: proc(game: Game) -> (next: Game) {
 	// game.done = true
 	// fmt.println(&game)
-	next := game
+	next = game
 	for !next.done {
 		guess := ask_guess_multi(game.high)
-		break
+		report(game, guess)
+		next = update(game, guess)
 	}
+	return
+}
+
+report :: proc(game: Game, guess: int) {
+	description := (
+		"too low" if guess < game.answer else
+		"too high" if guess > game.answer else
+		"the answer!"
+	)
+	fmt.println(guess, "is", description)
+}
+
+update :: proc(game: Game, guess: int) -> (next: Game) {
+	next = game
+	next.done = guess == game.answer
+	next.guesses += 1
+	return
 }
 
 main :: proc() {
@@ -58,6 +76,7 @@ main :: proc() {
 	// Or use nil for default random.
 	answer := pick_answer(high, &r)
 	game := Game {answer = answer, done = false, guesses = 0, high = high}
-	play(game)
-	fmt.println(answer)
+	game = play(game)
+	fmt.println("Finished in", game.guesses, "guesses");
+	fmt.println("Total input errors:", err_count)
 }
