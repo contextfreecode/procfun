@@ -13,13 +13,17 @@ type
 # Treat as debug info only, for logging purposes.
 var errCount = 0
 
-func askGuess(high: int): int {.tags: [ReadIOEffect, WriteIOEffect].} =
+func askGuess(high: int): int {.
+    raises: [IOError, ValueError],
+    tags: [ReadIOEffect, WriteIOEffect],
+  .} =
   {.cast(noSideEffect).}:
     stdout.write &"Guess a number between 1 and {high}: "
     stdin.readLine.parseInt
 
 func askGuessMulti(high: int): int {.
-    raises: [], tags: [ReadIOEffect, WriteIOEffect]
+    raises: [],
+    tags: [ReadIOEffect, WriteIOEffect],
   .} =
   while true:
     try:
