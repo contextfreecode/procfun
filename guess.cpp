@@ -19,6 +19,7 @@ auto ask_guess(int high) noexcept(false) -> int {
   return std::stoi(text);
 }
 
+// __attribute__((const))
 auto ask_guess_multi(int high) noexcept -> int {
   while (true) {
     try {
@@ -65,7 +66,7 @@ auto update(Game game, int guess) noexcept -> Game {
 auto play(const Game &game) -> Game {
   auto next = game;
   while (!next.done) {
-    auto guess = ask_guess_multi(next.high);
+    auto guess = ask_guess_multi(game.high);
     report(next, guess);
     next = update(next, guess);
   }
