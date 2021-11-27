@@ -16,9 +16,6 @@ auto ask_guess(int high) noexcept(false) -> int {
   std::cout << "Guess a number between 1 and " << high << ": ";
   std::string text;
   std::getline(std::cin, text);
-  // int guess;
-  // std::cin >> guess;
-  // std::cout << std::cin.fail() << " " << guess << "\n";
   return std::stoi(text);
 }
 
@@ -26,7 +23,7 @@ auto ask_guess_multi(int high) noexcept -> int {
   while (true) {
     try {
       return ask_guess(high);
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
       std::cout << "I didn't understand\n";
       err_count += 1;
     }
@@ -43,10 +40,36 @@ auto pick_answer(int high) -> int {
   return pick_answer(gen, high);
 }
 
-// __attribute__((const))
-auto play(const Game& game) noexcept -> Game {
-  auto guess = ask_guess_multi(game.high);
+auto report(const Game &game, int guess) -> void {
+  // clang-format off
+  auto description =
+    guess < game.answer ? "too low" :
+    guess > game.answer ? "too high" :
+    "the answer!";
+  // clang-format on
+  std::cout << guess << " is " << description << "\n";
+}
+
+// clang-format off
+constexpr
+__attribute__((const))
+auto update(Game game, int guess) noexcept -> Game {
+  // clang-format on
+  if (guess == game.answer) {
+    game.done = true;
+  }
+  game.guesses += 1;
   return game;
+}
+
+auto play(const Game &game) -> Game {
+  auto next = game;
+  while (!next.done) {
+    auto guess = ask_guess_multi(next.high);
+    report(next, guess);
+    next = update(next, guess);
+  }
+  return next;
 }
 
 auto main() -> int {
@@ -54,5 +77,6 @@ auto main() -> int {
   auto answer = pick_answer(high);
   auto game = Game{.answer = answer, .high = high};
   game = play(game);
-  // std::cout << answer << "\n";
+	std::cout << "Finished in " << game.guesses << " guesses" << std::endl;
+	std::cerr << "Total input errors: " << err_count << "\n";
 }
