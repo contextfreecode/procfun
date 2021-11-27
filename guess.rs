@@ -74,8 +74,8 @@ fn main() {
         high,
     };
     let game = play(game);
-	println!("Finished in {} guesses", game.guesses);
+    println!("Finished in {} guesses", game.guesses);
     unsafe {
-	    println!("Total input errors: {}", ERR_COUNT);
+        println!("Total input errors: {}", ERR_COUNT);
     }
 }
