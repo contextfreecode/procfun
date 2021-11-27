@@ -1,5 +1,7 @@
 let errCount = 0;
 
+const gameDefaults = Object.freeze({ done: false, guesses: 0 });
+
 function askGuess(high) {
   const text = prompt(`Guess a number between 1 and ${high}:`);
   return parseIntChecked(text);
@@ -53,10 +55,10 @@ function update(game, guess) {
 export function main() {
   const high = 100;
   const answer = pickAnswer(high);
-  const game = { answer, done: false, guesses: 0, high };
+  const game = { ...gameDefaults, answer, high };
   play(game);
   console.log(`Finished in ${game.guesses} guesses`);
-  console.debug(`Total input errors: ${errCount}`)
+  console.debug(`Total input errors: ${errCount}`);
 }
 
 main();
