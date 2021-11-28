@@ -23,6 +23,7 @@ fn askGuess(high: i32) Error!i32 {
     const read = stdin.readUntilDelimiterOrEofAlloc;
     const text = try read(allocator, '\n', 1 << 13);
     if (text == null) return error.Eof;
+    defer allocator.free(text.?);
     return std.fmt.parseInt(i32, text.?, 10);
 }
 
