@@ -10,32 +10,68 @@ const Game = struct {
 };
 
 const Error = error{
+    Eof,
     OutOfMemory,
     StreamTooLong,
-} || std.os.ReadError || std.os.WriteError;
+} || std.fmt.ParseIntError || std.os.ReadError || std.os.WriteError;
+
+var err_count: i32 = 0;
 
 fn askGuess(high: i32) Error!i32 {
     try stdout.print("Guess a number between 1 and {}: ", .{high});
     var allocator = std.heap.page_allocator;
-    const text = try stdin.readUntilDelimiterOrEofAlloc(allocator, '\n', 1 << 13);
-    try stdout.print("text: {s}\n", .{text});
-    // return std.fmt.parseInt(i32, text, 10);
-    return 50;
+    const read = stdin.readUntilDelimiterOrEofAlloc;
+    const text = try read(allocator, '\n', 1 << 13);
+    if (text == null) return error.Eof;
+    return std.fmt.parseInt(i32, text.?, 10);
 }
 
-fn play(game: Game) Error!Game {
-    const guess = try askGuess(game.high);
-    try stdout.print("guess: {}\n", .{guess});
-    return game;
+fn askGuessMulti(high: i32) std.os.WriteError!i32 {
+    while (true) {
+        return askGuess(high) catch {
+            try stdout.print("I didn't understand\n", .{});
+            err_count += 1;
+            continue;
+        };
+    }
 }
 
-pub fn main() Error!void {
+fn play(game: Game) std.os.WriteError!Game {
+    // game.done = true;
+    // var game2 = @as(*Game, &game);
+    // game2.done = true;
+    var next = game;
+    while (!next.done) {
+        const guess = try askGuessMulti(next.high);
+        try report(next, guess);
+        update(&next, guess);
+    }
+    return next;
+}
+
+fn report(game: Game, guess: i32) std.os.WriteError!void {
+    const description =
+        if (guess < game.answer) "too low"
+        else if (guess > game.answer) "too high"
+        else "the answer!";
+    try stdout.print("{} is {s}\n", .{ guess, description });
+}
+
+fn update(game: *Game, guess: i32) void {
+    if (guess == game.answer) {
+        game.done = true;
+    }
+    game.guesses += 1;
+}
+
+pub fn main() std.os.WriteError!void {
     const seed = @intCast(u64, std.time.milliTimestamp());
     var rng = std.rand.DefaultPrng.init(seed);
     var random = rng.random();
     const high = 100;
     const answer = random.intRangeAtMost(i32, 1, high);
     const game = Game{ .answer = answer, .high = high };
-    const result = play(game);
-    try stdout.print("Hi: {}\n", .{result});
+    const result = try play(game);
+    try stdout.print("Finished in {} guesses\n", .{result.guesses});
+    try stdout.print("Total input errors: {}\n", .{err_count});
 }

@@ -51,7 +51,7 @@ fn report(game: &Game, guess: i32) {
     } else if guess > game.answer {
         "too high"
     } else {
-        "the answer"
+        "the answer!"
     };
     println!("{} is {}", guess, description);
 }
