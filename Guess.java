@@ -1,3 +1,4 @@
+import java.io.IOError;
 import java.util.Random;
 import static java.lang.System.*;
 
@@ -28,7 +29,7 @@ class Game {
         this.high = high;
     }
 
-    int askGuess() throws NumberFormatException {
+    int askGuess() throws IOError, NumberFormatException {
         out.printf("Guess a number between 1 and %s: ", high);
         return Integer.parseInt(console().readLine());
     }
@@ -37,7 +38,8 @@ class Game {
         while (true) {
             try {
                 return askGuess();
-            } catch (NumberFormatException e) {
+            } catch (IOError | NumberFormatException e) {
+                // Though should be cautious about catching errors.
                 out.println("I didn't understand");
                 errCount += 1;
             }

@@ -1,4 +1,6 @@
 .koka
+bin
 guess
 notes.txt
+obj
 target
