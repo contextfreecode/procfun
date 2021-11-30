@@ -36,8 +36,18 @@ int PickAnswer(Random random, int high) {
 Game Play(Game game) {
     while (!game.Done) {
         var guess = AskGuessMulti(game.High);
+        Report(game, guess);
     }
     return game;
+}
+
+void Report(Game game, int guess) {
+    var description = guess switch {
+        _ when guess < game.Answer => "too low",
+        _ when guess > game.Answer => "too high",
+        _ => "the answer!",
+    };
+    Console.WriteLine($"{guess} is {description}");
 }
 
 record struct Game {
