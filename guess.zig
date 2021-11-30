@@ -9,11 +9,13 @@ const Game = struct {
     high: i32,
 };
 
-const Error = error{
+const FailingError = error{
     Eof,
     OutOfMemory,
     StreamTooLong,
-} || std.fmt.ParseIntError || std.os.ReadError || std.os.WriteError;
+} || std.os.ReadError || std.os.WriteError;
+
+const Error = FailingError || std.fmt.ParseIntError;
 
 var err_count: i32 = 0;
 
@@ -27,17 +29,21 @@ fn askGuess(high: i32) Error!i32 {
     return std.fmt.parseInt(i32, text.?, 10);
 }
 
-fn askGuessMulti(high: i32) std.os.WriteError!i32 {
+fn askGuessMulti(high: i32) FailingError!i32 {
     while (true) {
-        return askGuess(high) catch {
-            try stdout.print("I didn't understand\n", .{});
-            err_count += 1;
-            continue;
+        return askGuess(high) catch |err| switch (err) {
+            // std.fmt.ParseIntError => {
+            error.InvalidCharacter, error.Overflow => {
+                try stdout.print("I didn't understand\n", .{});
+                err_count += 1;
+                continue;
+            },
+            else => err,
         };
     }
 }
 
-fn play(game: Game) std.os.WriteError!Game {
+fn play(game: Game) FailingError!Game {
     // game.done = true;
     // var game2 = @as(*Game, &game);
     // game2.done = true;
@@ -65,7 +71,7 @@ fn update(game: *Game, guess: i32) void {
     game.guesses += 1;
 }
 
-pub fn main() std.os.WriteError!void {
+pub fn main() FailingError!void {
     const seed = @intCast(u64, std.time.milliTimestamp());
     var rng = std.rand.DefaultPrng.init(seed);
     var random = rng.random();
