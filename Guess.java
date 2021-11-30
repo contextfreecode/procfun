@@ -38,7 +38,7 @@ class Game {
         while (true) {
             try {
                 return askGuess();
-            } catch (IOError | NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 // Though should be cautious about catching errors.
                 out.println("I didn't understand");
                 errCount += 1;

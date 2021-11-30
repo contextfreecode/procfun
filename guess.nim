@@ -22,13 +22,13 @@ func askGuess(high: int): int {.
     stdin.readLine.parseInt
 
 func askGuessMulti(high: int): int {.
-    raises: [],
+    raises: [IOError],
     tags: [ReadIOEffect, WriteIOEffect],
   .} =
   while true:
     try:
       return askGuess(high)
-    except IOError, ValueError:
+    except ValueError:
       {.cast(noSideEffect).}:
         echo "I didn't understand"
         errCount += 1
