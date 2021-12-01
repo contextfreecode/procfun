@@ -7,6 +7,8 @@ void Main() {
     var answer = PickAnswer(new Random(), high);
     var game = new Game { Answer = answer, High = high };
     game = Play(game);
+    Console.WriteLine($"Finished in {game.Guesses} guesses");
+    Console.WriteLine($"Total input errors: {errCount}");
 }
 
 int AskGuess(int high) {
@@ -37,6 +39,7 @@ Game Play(Game game) {
     while (!game.Done) {
         var guess = AskGuessMulti(game.High);
         Report(game, guess);
+        game = Update(game, guess);
     }
     return game;
 }
@@ -48,6 +51,14 @@ void Report(Game game, int guess) {
         _ => "the answer!",
     };
     Console.WriteLine($"{guess} is {description}");
+}
+
+Game Update(Game game, int guess) {
+    if (guess == game.Answer) {
+        game.Done = true;
+    }
+    game.Guesses += 1;
+    return game;
 }
 
 record struct Game {
