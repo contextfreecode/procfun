@@ -38,7 +38,7 @@ fn askGuessMulti(high: i32) FailingError!i32 {
                 err_count += 1;
                 continue;
             },
-            else => err,
+            else => @errSetCast(FailingError, err),
         };
     }
 }
