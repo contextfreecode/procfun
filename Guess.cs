@@ -7,7 +7,8 @@ void Main() {
     int answer;
     PickAnswer(new Random(), high, out answer);
     var game = new Game { Answer = answer, High = high };
-    game = Play(game);
+    // game = Play(game);
+    Play(ref game);
     Console.WriteLine($"Finished in {game.Guesses} guesses");
     Console.WriteLine($"Total input errors: {errCount}");
 }
@@ -33,16 +34,16 @@ int AskGuessMulti(int high) {
 }
 
 void PickAnswer(Random random, int high, out int answer) {
+    // Inherently mutable random.
     answer = random.Next(high) + 1;
 }
 
-Game Play(Game game) {
+void Play(ref Game game) {
     while (!game.Done) {
         var guess = AskGuessMulti(game.High);
         Report(game, guess);
         game = Update(game, guess);
     }
-    return game;
 }
 
 void Report(Game game, int guess) {
