@@ -58,7 +58,7 @@ proc play(game: var Game) {.tags: [ReadIOEffect, WriteIOEffect].} =
     game.report(guess)
     game.update(guess)
 
-# proc main() {.tags: [Rand].} =
+# proc main() {.tags: [Rand, ReadIOEffect, WriteIOEffect].} =
 proc main() {.tags: [ReadIOEffect, WriteIOEffect].} =
   var r = initRand()
   let
