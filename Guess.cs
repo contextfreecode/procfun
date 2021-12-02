@@ -2,17 +2,6 @@
 
 Main();
 
-void Main() {
-    var high = 100;
-    int answer;
-    PickAnswer(new Random(), high, out answer);
-    var game = new Game { Answer = answer, High = high };
-    // game = Play(game);
-    Play(ref game);
-    Console.WriteLine($"Finished in {game.Guesses} guesses");
-    Console.WriteLine($"Total input errors: {errCount}");
-}
-
 int AskGuess(int high) {
     Console.Write($"Guess a number between 1 and {high}: ");
     var text = Console.ReadLine();
@@ -61,6 +50,17 @@ Game Update(Game game, int guess) {
     }
     game.Guesses += 1;
     return game;
+}
+
+void Main() {
+    var high = 100;
+    int answer;
+    PickAnswer(new Random(), high, out answer);
+    var game = new Game { Answer = answer, High = high };
+    // game = Play(game);
+    Play(ref game);
+    Console.WriteLine($"Finished in {game.Guesses} guesses");
+    Console.WriteLine($"Total input errors: {errCount}");
 }
 
 record struct Game {
