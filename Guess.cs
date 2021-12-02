@@ -4,7 +4,8 @@ Main();
 
 void Main() {
     var high = 100;
-    var answer = PickAnswer(new Random(), high);
+    int answer;
+    PickAnswer(new Random(), high, out answer);
     var game = new Game { Answer = answer, High = high };
     game = Play(game);
     Console.WriteLine($"Finished in {game.Guesses} guesses");
@@ -31,8 +32,8 @@ int AskGuessMulti(int high) {
     }
 }
 
-int PickAnswer(Random random, int high) {
-    return new Random().Next(high) + 1;
+void PickAnswer(Random random, int high, out int answer) {
+    answer = random.Next(high) + 1;
 }
 
 Game Play(Game game) {
