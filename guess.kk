@@ -63,7 +63,7 @@ fun update(game: game, guess: int): game  // or `total game``
     done := True
   game(done = done, guesses = game.guesses + 1)
 
-fun main(): <console, div, exn, random> ()  // or `io ()` for overkill
+fun main(): <console, div, exn, random> ()  // or `io ()` without random
   with brk fail(exc) -> throw-exn(exc)
   // Track info for debug
   var err-count := 0

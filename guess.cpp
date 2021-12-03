@@ -52,10 +52,12 @@ auto report(const Game &game, int guess) -> void {
 }
 
 // clang-format off
+[[nodiscard]]
 constexpr
 __attribute__((const))
 auto update(Game game, int guess) noexcept -> Game {
   // clang-format on
+  // if (err_count) throw std::runtime_error{"hi there"};
   if (guess == game.answer) {
     game.done = true;
   }
@@ -63,21 +65,19 @@ auto update(Game game, int guess) noexcept -> Game {
   return game;
 }
 
-auto play(const Game &game) -> Game {
-  auto next = game;
-  while (!next.done) {
+auto play(Game &game) {
+  while (!game.done) {
     auto guess = ask_guess_multi(game.high);
-    report(next, guess);
-    next = update(next, guess);
+    report(game, guess);
+    game = update(game, guess);
   }
-  return next;
 }
 
 auto main() -> int {
   auto high = 100;
   auto answer = pick_answer(high);
   auto game = Game{.answer = answer, .high = high};
-  game = play(game);
+  play(game);
 	std::cout << "Finished in " << game.guesses << " guesses" << std::endl;
 	std::cerr << "Total input errors: " << err_count << "\n";
 }

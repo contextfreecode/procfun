@@ -43,20 +43,16 @@ fn askGuessMulti(high: i32) FailingError!i32 {
     }
 }
 
-fn play(game: Game) FailingError!Game {
-    // game.done = true;
-    // var game2 = @as(*Game, &game);
-    // game2.done = true;
-    var next = game;
-    while (!next.done) {
-        const guess = try askGuessMulti(next.high);
-        try report(next, guess);
-        update(&next, guess);
+fn play(game: *Game) !void {
+    while (!game.done) {
+        const guess = try askGuessMulti(game.high);
+        try report(game.*, guess);
+        update(game, guess);
     }
-    return next;
 }
 
 fn report(game: Game, guess: i32) std.os.WriteError!void {
+    // game.done = true;
     const description =
         if (guess < game.answer) "too low"
         else if (guess > game.answer) "too high"
@@ -71,14 +67,14 @@ fn update(game: *Game, guess: i32) void {
     game.guesses += 1;
 }
 
-pub fn main() FailingError!void {
+pub fn main() !void {
     const seed = @intCast(u64, std.time.milliTimestamp());
     var rng = std.rand.DefaultPrng.init(seed);
     var random = rng.random();
     const high = 100;
     const answer = random.intRangeAtMost(i32, 1, high);
-    const game = Game{ .answer = answer, .high = high };
-    const result = try play(game);
-    try stdout.print("Finished in {} guesses\n", .{result.guesses});
+    var game = Game{ .answer = answer, .high = high };
+    try play(&game);
+    try stdout.print("Finished in {} guesses\n", .{game.guesses});
     try stdout.print("Total input errors: {}\n", .{err_count});
 }

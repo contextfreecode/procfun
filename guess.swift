@@ -34,14 +34,12 @@ func ask_guess_multi(high: Int) throws -> Int {
     }
 }
 
-func play(game: Game) throws -> Game {
-    var next = game
-    while !next.done {
-        let guess = try ask_guess_multi(high: next.high)
-        report(game: next, guess: guess)
-        update(game: &next, guess: guess)
+func play(game: inout Game) throws {
+    while !game.done {
+        let guess = try ask_guess_multi(high: game.high)
+        report(game: game, guess: guess)
+        game = update(game: game, guess: guess)
     }
-    return next
 }
 
 func report(game: Game, guess: Int) {
@@ -52,20 +50,22 @@ func report(game: Game, guess: Int) {
     print("\(guess) is \(description)")
 }
 
-func update(game: inout Game, guess: Int) {
+func update(game: Game, guess: Int) -> Game {
+    var game = game
     if (guess == game.answer) {
         game.done = true
     }
     game.guesses += 1
+    return game
 }
 
 func main() throws {
     var rng = SystemRandomNumberGenerator()
     let high = 100
     let answer = Int.random(in: 1...100, using: &rng)
-    let game = Game(answer: answer, high: high)
-    let result = try play(game: game)
-    print("Finished in \(result.guesses) guesses")
+    var game = Game(answer: answer, high: high)
+    try play(game: &game)
+    print("Finished in \(game.guesses) guesses")
     print("Total input errors: \(err_count)")
 }
 

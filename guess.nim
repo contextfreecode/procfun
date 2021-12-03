@@ -47,16 +47,17 @@ proc report(game: Game, guess: int) {.tags: [WriteIOEffect]} =
     else: "the answer!"
   echo &"{guess} is {description}"
 
-func update(game: var Game, guess: int) =
-  if guess == game.answer:
-    game.done = true;
-  game.guesses += 1
+func update(game: Game, guess: int): Game =
+  result = game
+  if guess == result.answer:
+    result.done = true;
+  result.guesses += 1
 
 proc play(game: var Game) {.tags: [ReadIOEffect, WriteIOEffect].} =
   while not game.done:
     let guess = askGuessMulti(game.high)
     game.report(guess)
-    game.update(guess)
+    game = game.update(guess)
 
 # proc main() {.tags: [Rand, ReadIOEffect, WriteIOEffect].} =
 proc main() {.tags: [ReadIOEffect, WriteIOEffect].} =

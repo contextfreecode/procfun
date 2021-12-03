@@ -41,16 +41,12 @@ pick_answer :: proc(high: int, r: ^rand.Rand) -> int {
 	return rand.int_max(high, r) + 1
 }
 
-play :: proc(game: Game) -> (next: Game) {
-	// game.done = true
-	// fmt.println(&game)
-	next = game
-	for !next.done {
-		guess := ask_guess_multi(next.high)
-		report(next, guess)
-		next = update(next, guess)
+play :: proc(game: ^Game) {
+	for !game.done {
+		guess := ask_guess_multi(game.high)
+		report(game^, guess)
+		game^ = update(game^, guess)
 	}
-	return
 }
 
 read_line :: proc() -> (result: string, ok: bool) {
@@ -68,6 +64,8 @@ read_line :: proc() -> (result: string, ok: bool) {
 }
 
 report :: proc(game: Game, guess: int) {
+	// game.done = true
+	// fmt.println(&game)
 	description := (
 		"too low" if guess < game.answer else
 		"too high" if guess > game.answer else
@@ -89,7 +87,7 @@ main :: proc() {
 	// Or use nil for default random.
 	answer := pick_answer(high, &r)
 	game := Game {answer = answer, done = false, guesses = 0, high = high}
-	game = play(game)
+	play(&game)
 	fmt.println("Finished in", game.guesses, "guesses");
 	fmt.println("Total input errors:", err_count)
 }
