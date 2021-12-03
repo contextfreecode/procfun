@@ -29,7 +29,7 @@ fn askGuess(high: i32) Error!i32 {
 fn askGuessMulti(high: i32) FailError!i32 {
     while (true) {
         return askGuess(high) catch |err| switch (err) {
-            // std.fmt.ParseIntError => {
+            // std.fmt.ParseIntError
             error.InvalidCharacter, error.Overflow => {
                 try stdout.print("I didn't understand\n", .{});
                 err_count += 1;
