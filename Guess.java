@@ -34,7 +34,7 @@ class Game {
         return Integer.parseInt(console().readLine());
     }
 
-    int askGuessMulti() {
+    int askGuessMulti() {  // implicitly throws IOError
         while (true) {
             try {
                 return askGuess();

@@ -7,17 +7,20 @@ import std/os/readline
 effect debug
   fun inc-err(): ()
 
+effect fail
+  brk fail(exn: exception): a
+
 struct game
   answer: int
   done: bool = False
   guesses: int = 0
   high: int
 
-fun ask-guess(high: int): <console, exn> int
+fun ask-guess(high: int): <console, exn, fail> int
   print("Guess a number between 1 and " ++ high.show ++ ": ")
-  readline().parse-int-checked
+  readline-checked().parse-int-checked
 
-fun ask-guess-multi(high: int): <console, debug, div> int
+fun ask-guess-multi(high: int): <console, debug, div, fail> int
   with brk throw-exn(exc)
     println("I didn't understand")
     inc-err()
@@ -35,12 +38,17 @@ fun pick-answer(high: int): random int
 fun pick-answer-strong(high: int): ndet int
   srandom-int32-range(1.int32, high.int32).int
 
-fun play(game: game): <console, debug, div> game
+fun play(game: game): <console, debug, div, fail> game
   // game.done := True
   val guess = ask-guess-multi(game.high)
   game.report(guess)
   val next = game.update(guess)
   if next.done then next else next.play
+
+fun readline-checked(): <console, fail> string
+  with brk throw-exn(exc)
+    fail(exc)
+  readline()
 
 fun report(game: game, guess: int): console ()
   val description =
@@ -55,7 +63,8 @@ fun update(game: game, guess: int): game  // or `total game``
     done := True
   game(done = done, guesses = game.guesses + 1)
 
-fun main(): <console, div, random> ()  // or `io ()` for overkill
+fun main(): <console, div, exn, random> ()  // or `io ()` for overkill
+  with brk fail(exc) -> throw-exn(exc)
   // Track info for debug
   var err-count := 0
   with fun inc-err()
