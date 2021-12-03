@@ -9,27 +9,24 @@ const Game = struct {
     high: i32,
 };
 
-const FailingError = error{
+const Error = FailError || std.fmt.ParseIntError;
+const FailError = ReadLineError || std.os.WriteError;
+const ReadLineError = error{
     Eof,
     OutOfMemory,
     StreamTooLong,
-} || std.os.ReadError || std.os.WriteError;
-
-const Error = FailingError || std.fmt.ParseIntError;
+} || std.os.ReadError;
 
 var err_count: i32 = 0;
 
 fn askGuess(high: i32) Error!i32 {
     try stdout.print("Guess a number between 1 and {}: ", .{high});
-    var allocator = std.heap.page_allocator;
-    const read = stdin.readUntilDelimiterOrEofAlloc;
-    const text = try read(allocator, '\n', 1 << 13);
-    if (text == null) return error.Eof;
-    defer allocator.free(text.?);
+    const text = try readLineAlloc(std.heap.page_allocator);
+    defer std.heap.page_allocator.free(text.?);
     return std.fmt.parseInt(i32, text.?, 10);
 }
 
-fn askGuessMulti(high: i32) FailingError!i32 {
+fn askGuessMulti(high: i32) FailError!i32 {
     while (true) {
         return askGuess(high) catch |err| switch (err) {
             // std.fmt.ParseIntError => {
@@ -38,7 +35,7 @@ fn askGuessMulti(high: i32) FailingError!i32 {
                 err_count += 1;
                 continue;
             },
-            else => @errSetCast(FailingError, err),
+            else => @errSetCast(FailError, err),
         };
     }
 }
@@ -51,6 +48,12 @@ fn play(game: *Game) !void {
     }
 }
 
+fn readLineAlloc(allocator: *std.mem.Allocator) ReadLineError!?[]u8 {
+    const read = stdin.readUntilDelimiterOrEofAlloc;
+    const text = try read(allocator, '\n', 1 << 13);
+    return if (text == null) error.Eof else text;
+}
+
 fn report(game: Game, guess: i32) std.os.WriteError!void {
     // game.done = true;
     const description =
@@ -60,6 +63,7 @@ fn report(game: Game, guess: i32) std.os.WriteError!void {
     try stdout.print("{} is {s}\n", .{ guess, description });
 }
 
+// fn update(game: Game, guess: i32) Game {
 fn update(game: *Game, guess: i32) void {
     if (guess == game.answer) {
         game.done = true;
