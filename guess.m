@@ -47,13 +47,13 @@ end
 
 function report(game, guess)
     if guess < game.answer
-        description = "too low";
+        description = 'too low';
     elseif guess > game.answer
-        description = "too high";
+        description = 'too high';
     else
-        description = "the answer!";
+        description = 'the answer!';
     end
-    fprintf("%d is %s\n", guess, description);
+    fprintf('%d is %s\n', guess, description);
 end
 
 function game = update(game, guess)

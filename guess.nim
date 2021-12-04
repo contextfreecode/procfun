@@ -72,7 +72,3 @@ proc main() {.tags: [ReadIOEffect, WriteIOEffect].} =
   stderr.writeLine &"Total input errors: {errCount}"
 
 main()
-
-# func sneaky() =
-#   var r = initRand()
-#   discard pickAnswer(r, 100)

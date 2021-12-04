@@ -19,7 +19,6 @@ auto ask_guess(int high) noexcept(false) -> int {
   return std::stoi(text);
 }
 
-// __attribute__((const))
 auto ask_guess_multi(int high) noexcept -> int {
   while (true) {
     try {

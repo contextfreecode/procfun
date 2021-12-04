@@ -1,4 +1,4 @@
-import java.io.IOError;
+import java.io.*;
 import java.util.Random;
 import static java.lang.System.*;
 
@@ -7,7 +7,7 @@ class Guess {
         return random.nextInt(high) + 1;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         var high = 100;
         var answer = pickAnswer(new Random(), high);
         var game = new Game(answer, high);
@@ -29,17 +29,18 @@ class Game {
         this.high = high;
     }
 
-    int askGuess() throws IOError, NumberFormatException {
+    int askGuess() throws IOError, IOException, NumberFormatException {
         out.printf("Guess a number between 1 and %s: ", high);
-        return Integer.parseInt(console().readLine());
+        var text = console().readLine();
+        if (text == null) throw new IOException("eof");
+        return Integer.parseInt(text);
     }
 
-    int askGuessMulti() {  // implicitly throws IOError
+    int askGuessMulti() throws IOException {  // implicitly IOError
         while (true) {
             try {
                 return askGuess();
             } catch (NumberFormatException e) {
-                // Though should be cautious about catching errors.
                 out.println("I didn't understand");
                 errCount += 1;
             }
@@ -54,7 +55,7 @@ class Game {
         return guesses;
     }
 
-    public void play() {
+    public void play() throws IOException {
         while (!done) {
             var guess = askGuessMulti();
             report(guess);

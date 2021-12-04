@@ -1,5 +1,6 @@
 .koka
 bin
+env.sh
 guess
 notes.txt
 obj
