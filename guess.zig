@@ -12,7 +12,7 @@ const Game = struct {
 const Error = FailError || std.fmt.ParseIntError;
 const FailError = ReadLineError || std.os.WriteError;
 const ReadLineError = error{
-    Eof,
+    EndOfStream,
     OutOfMemory,
     StreamTooLong,
 } || std.os.ReadError;
@@ -22,8 +22,8 @@ var err_count: i32 = 0;
 fn askGuess(high: i32) Error!i32 {
     try stdout.print("Guess a number between 1 and {}: ", .{high});
     const text = try readLineAlloc(std.heap.page_allocator);
-    defer std.heap.page_allocator.free(text.?);
-    return std.fmt.parseInt(i32, text.?, 10);
+    defer std.heap.page_allocator.free(text);
+    return std.fmt.parseInt(i32, text, 10);
 }
 
 fn askGuessMulti(high: i32) FailError!i32 {
@@ -48,10 +48,9 @@ fn play(game: *Game) !void {
     }
 }
 
-fn readLineAlloc(allocator: *std.mem.Allocator) ReadLineError!?[]u8 {
-    const read = stdin.readUntilDelimiterOrEofAlloc;
-    const text = try read(allocator, '\n', 1 << 13);
-    return if (text == null) error.Eof else text;
+fn readLineAlloc(allocator: *std.mem.Allocator) ReadLineError![]u8 {
+    const read = stdin.readUntilDelimiterAlloc;
+    return try read(allocator, '\n', 1 << 13);
 }
 
 fn report(game: Game, guess: i32) std.os.WriteError!void {
