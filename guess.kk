@@ -40,6 +40,7 @@ fun pick-answer-strong(high: int): ndet int
 
 fun play(game: game): <console, debug, div, fail> game
   // game.done := True
+  // game := game(done = True)
   val guess = ask-guess-multi(game.high)
   game.report(guess)
   val next = game.update(guess)

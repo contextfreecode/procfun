@@ -48,9 +48,8 @@ fn play(game: *Game) !void {
     }
 }
 
-fn readLineAlloc(allocator: *std.mem.Allocator) ReadLineError![]u8 {
-    const read = stdin.readUntilDelimiterAlloc;
-    return try read(allocator, '\n', 1 << 13);
+fn readLineAlloc(allocator: std.mem.Allocator) ReadLineError![]u8 {
+    return try stdin.readUntilDelimiterAlloc(allocator, '\n', 1 << 13);
 }
 
 fn report(game: Game, guess: i32) std.os.WriteError!void {
@@ -73,7 +72,7 @@ fn update(game: *Game, guess: i32) void {
 pub fn main() !void {
     const seed = @intCast(u64, std.time.milliTimestamp());
     var rng = std.rand.DefaultPrng.init(seed);
-    var random = rng.random();
+    const random = rng.random();
     const high = 100;
     const answer = random.intRangeAtMost(i32, 1, high);
     var game = Game{ .answer = answer, .high = high };
