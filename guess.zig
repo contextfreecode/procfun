@@ -19,16 +19,16 @@ const ReadLineError = error{
 
 var err_count: i32 = 0;
 
-fn askGuess(high: i32) Error!i32 {
+fn askGuess(allocator: std.mem.Allocator, high: i32) Error!i32 {
     try stdout.print("Guess a number between 1 and {}: ", .{high});
-    const text = try readLineAlloc(std.heap.page_allocator);
-    defer std.heap.page_allocator.free(text);
+    const text = try readLineAlloc(allocator);
+    defer allocator.free(text);
     return std.fmt.parseInt(i32, text, 10);
 }
 
-fn askGuessMulti(high: i32) FailError!i32 {
+fn askGuessMulti(allocator: std.mem.Allocator, high: i32) FailError!i32 {
     while (true) {
-        return askGuess(high) catch |err| switch (err) {
+        return askGuess(allocator, high) catch |err| switch (err) {
             // std.fmt.ParseIntError
             error.InvalidCharacter, error.Overflow => {
                 try stdout.print("I didn't understand\n", .{});
@@ -40,9 +40,9 @@ fn askGuessMulti(high: i32) FailError!i32 {
     }
 }
 
-fn play(game: *Game) !void {
+fn play(allocator: std.mem.Allocator, game: *Game) !void {
     while (!game.done) {
-        const guess = try askGuessMulti(game.high);
+        const guess = try askGuessMulti(allocator, game.high);
         try report(game.*, guess);
         update(game, guess);
     }
@@ -76,7 +76,7 @@ pub fn main() !void {
     const high = 100;
     const answer = random.intRangeAtMost(i32, 1, high);
     var game = Game{ .answer = answer, .high = high };
-    try play(&game);
+    try play(std.heap.page_allocator, &game);
     try stdout.print("Finished in {} guesses\n", .{game.guesses});
     try stdout.print("Total input errors: {}\n", .{err_count});
 }
