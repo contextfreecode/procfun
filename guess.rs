@@ -39,8 +39,8 @@ fn play(mut game: Game) -> Game {
     while !game.done {
         let guess = ask_guess_multi(game.high);
         report(&game, guess);
-        // Mutate just to prove we can.
-        update(&mut game, guess);
+        // ...
+        game = update(game, guess);
     }
     game
 }
@@ -56,11 +56,17 @@ fn report(game: &Game, guess: i32) {
     println!("{} is {}", guess, description);
 }
 
-fn update(game: &mut Game, guess: i32) {
+fn update(game: Game, guess: i32) -> Game {
+    update2(game, guess)
+}
+
+const fn update2(mut game: Game, guess: i32) -> Game {
     if guess == game.answer {
         game.done = true;
     }
     game.guesses += 1;
+    // unsafe { game.guesses += ERR_COUNT; }
+    return game;
 }
 
 fn main() {

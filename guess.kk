@@ -58,7 +58,7 @@ fun report(game: game, guess: int): console ()
     else "the answer!"
   println(guess.show ++ " is " ++ description)
 
-fun update(game: game, guess: int): game  // or `total game``
+fun update(game: game, guess: int): game  // or `total game`
   var done := False
   if guess == game.answer then
     done := True
@@ -76,5 +76,4 @@ fun main(): <console, div, exn, random> ()  // or `io ()` without random
   var game := Game(answer = pick-answer(high), high = high)
   game := game.play
   println("Finished in " ++ game.guesses.show ++ " guesses")
-  // Report debug info (ideally to stderr or log)
   println("Total input errors: " ++ err-count.show)
