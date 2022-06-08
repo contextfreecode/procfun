@@ -1,3 +1,4 @@
+.build
 .koka
 bin
 env.sh

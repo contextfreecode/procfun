@@ -1,5 +1,6 @@
 const std = @import("std");
 const stdout = std.io.getStdOut().writer();
+const stderr = std.io.getStdErr().writer();
 const stdin = std.io.getStdIn().reader();
 
 const Game = struct {
@@ -35,7 +36,7 @@ fn askGuessMulti(allocator: std.mem.Allocator, high: i32) FailError!i32 {
                 err_count += 1;
                 continue;
             },
-            else => @errSetCast(FailError, err),
+            else => |e| e,
         };
     }
 }
@@ -78,5 +79,5 @@ pub fn main() !void {
     var game = Game{ .answer = answer, .high = high };
     try play(std.heap.page_allocator, &game);
     try stdout.print("Finished in {} guesses\n", .{game.guesses});
-    try stdout.print("Total input errors: {}\n", .{err_count});
+    try stderr.print("Total input errors: {}\n", .{err_count});
 }
