@@ -50,9 +50,6 @@ play :: proc(game: ^Game) {
 }
 
 read_line :: proc() -> (result: string, ok: bool) {
-	// See also:
-	// - https://github.com/odin-lang/Odin/issues/1214
-	// - https://p.teknik.io/Raw/IT996
 	s := os.stream_from_handle(os.stdin)
 	r: bufio.Reader
 	bufio.reader_init(&r, io.Reader{s})
@@ -86,7 +83,7 @@ main :: proc() {
 	r := rand.create(transmute(u64)time.now())
 	// Or use nil for default random.
 	answer := pick_answer(high, &r)
-	game := Game {answer = answer, done = false, guesses = 0, high = high}
+	game := Game {answer = answer, high = high}
 	play(&game)
 	fmt.println("Finished in", game.guesses, "guesses");
 	fmt.println("Total input errors:", err_count)
