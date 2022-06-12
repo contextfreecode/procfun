@@ -39,11 +39,11 @@ pick_answer :: (high: int) -> int {
     return cast(int) (random_get() % cast(u64) high) + 1;
 }
 
-play :: (game: Game) {
+play :: (game: *Game) {
     while !game.done {
         guess := ask_guess_multi(game.high);
         report(game, guess);
-        game = update(game, guess);
+        <<game = update(game, guess);
     }
 }
 
@@ -57,7 +57,7 @@ read_line :: () -> string {
 
 report :: (game: Game, guess: int) {
 	// game.done = true;
-	// print("%\n", &game);
+	// print("%\n", *game);
     description: string;
     if (guess < game.answer) {
         description = "too low";
@@ -70,7 +70,7 @@ report :: (game: Game, guess: int) {
 }
 
 update :: (game: Game, guess: int) -> next: Game {
-	next = game;
+	next := game;
 	next.done = guess == game.answer;
 	next.guesses += 1;
 	return next;
@@ -84,6 +84,7 @@ main :: () {
     game: Game;
     game.answer = answer;
     game.high = high;
-    play(game);
-    print("A is of type %, value %.\n", type_of(answer), answer);
+    play(*game);
+	print("Finished in % guesses\n", game.guesses);
+	print("Total input errors: %\n", err_count);
 }
