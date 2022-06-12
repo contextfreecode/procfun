@@ -25,15 +25,14 @@ ask_guess :: (high: int) -> result: int, ok: bool {
 ask_guess_multi :: (high: int) -> int {
 	while true {
         result, ok := ask_guess(high);
-		if ok {
-			return result;
-		}
+		if ok  return result;
 		print("I didn't understand\n");
 		err_count += 1;
 	}
-    // TODO How to assert unreachable?
-    return -1;
 }
+
+// Overloading allowed.
+// pick_answer :: (high: string) -> int { return 0; }
 
 pick_answer :: (high: int) -> int {
     return cast(int) (random_get() % cast(u64) high) + 1;
@@ -44,6 +43,7 @@ play :: (game: *Game) {
         guess := ask_guess_multi(game.high);
         report(game, guess);
         <<game = update(game, guess);
+        // Could reset_temporary_storage() here.
     }
 }
 
@@ -51,7 +51,7 @@ read_line :: () -> string {
     buffer: [4096] u8;
     // No real way to distinguish between empty and error?
     bytes_read := read(STDIN_FILENO, buffer.data, buffer.count - 1);
-    // No allocation on empty.
+    // No allocation on empty. Could use tprint here if wanted.
     return sprint("%", to_string(buffer.data, bytes_read));
 }
 

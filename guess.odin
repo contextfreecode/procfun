@@ -37,6 +37,9 @@ ask_guess_multi :: proc(high: int) -> int {
 	}
 }
 
+// No overloading.
+// pick_answer :: proc(high: string) -> int { return 0 }
+
 pick_answer :: proc(high: int, r: ^rand.Rand) -> int {
 	return rand.int_max(high, r) + 1
 }
