@@ -11,15 +11,28 @@ Game :: struct {
 
 err_count := 0;
 
-ask_guess :: (high: int) -> (result: int, ok: bool) {
+ask_guess :: (high: int) -> result: int, ok: bool {
 	print("Guess a number between 1 and %: ", high);
-    result, ok := 0, false;
     text := read_line();
 	if text {
         defer free(text);
-        n, success, _ := to_integer(text);
-        result = n;
+        result, ok, _ := to_integer(text);
+        return result, ok;
 	}
+    return 0, false;
+}
+
+ask_guess_multi :: (high: int) -> int {
+	while true {
+        result, ok := ask_guess(high);
+		if ok {
+			return result;
+		}
+		print("I didn't understand\n");
+		err_count += 1;
+	}
+    // TODO How to assert unreachable?
+    return -1;
 }
 
 pick_answer :: (high: int) -> int {
@@ -28,11 +41,9 @@ pick_answer :: (high: int) -> int {
 
 play :: (game: Game) {
     while !game.done {
-        guess := ask_guess(game.high);
-        print("You said: %\n", guess);
-        if !guess {
-            break;
-        }
+        guess := ask_guess_multi(game.high);
+        report(game, guess);
+        game = update(game, guess);
     }
 }
 
@@ -40,8 +51,29 @@ read_line :: () -> string {
     buffer: [4096] u8;
     // No real way to distinguish between empty and error?
     bytes_read := read(STDIN_FILENO, buffer.data, buffer.count - 1);
-    // Does this also mean nothing gets allocated here?
+    // No allocation on empty.
     return sprint("%", to_string(buffer.data, bytes_read));
+}
+
+report :: (game: Game, guess: int) {
+	// game.done = true;
+	// print("%\n", &game);
+    description: string;
+    if (guess < game.answer) {
+        description = "too low";
+    } else if (guess > game.answer) {
+        description = "too high";
+    } else {
+        description = "the answer!";
+    }
+	print("% is %\n", guess, description);
+}
+
+update :: (game: Game, guess: int) -> next: Game {
+	next = game;
+	next.done = guess == game.answer;
+	next.guesses += 1;
+	return next;
 }
 
 main :: () {
